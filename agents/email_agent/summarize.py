@@ -5,8 +5,6 @@ from __future__ import annotations
 from utils.ai_client import AIClientError, ask_ai
 
 
-EMAIL_AGENT_MODEL = "meta/llama-3.1-8b-instruct"
-
 
 class NvidiaAgentError(RuntimeError):
     """Raised when the NVIDIA API cannot complete an agent request."""
@@ -23,7 +21,6 @@ def ask_nvidia(
     try:
         return ask_ai(
             prompt,
-            model=EMAIL_AGENT_MODEL,
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,

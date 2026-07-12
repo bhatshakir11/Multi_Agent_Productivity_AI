@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    container_name: productivity_ai_dashboard
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+      - ./.secrets:/app/.secrets
+    restart: unless-stopped
+
+  scheduler:
+    build: .
+    container_name: productivity_ai_scheduler
+    command: python -m agents.master_agent.coordinator --scheduler
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+      - ./.secrets:/app/.secrets
+    restart: unless-stopped

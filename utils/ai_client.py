@@ -90,23 +90,28 @@ def ask_ai(
     max_tokens: int = 220,
     temperature: float = 0.2,
     top_p: float = 1.0,
+    response_format: dict[str, object] | None = None,
 ) -> str:
     """Ask the configured NVIDIA model and return plain text content."""
     if not prompt or not prompt.strip():
         raise AIClientError("AI prompt cannot be empty.")
 
     try:
-        response = get_ai_client().chat.completions.create(
-            model=model or get_nvidia_model(),
-            messages=[
+        kwargs: dict[str, object] = {
+            "model": model or get_nvidia_model(),
+            "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
-            temperature=temperature,
-            top_p=top_p,
-            max_tokens=max_tokens,
-            extra_body={"chat_template_kwargs": {"thinking": False}},
-        )
+            "temperature": temperature,
+            "top_p": top_p,
+            "max_tokens": max_tokens,
+            "extra_body": {"chat_template_kwargs": {"thinking": False}},
+        }
+        if response_format is not None:
+            kwargs["response_format"] = response_format
+
+        response = get_ai_client().chat.completions.create(**kwargs)
         return (response.choices[0].message.content or "").strip()
     except OpenAIError as exc:
         raise AIClientError(f"NVIDIA API request failed: {exc}") from exc

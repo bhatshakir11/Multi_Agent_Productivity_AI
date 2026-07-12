@@ -25,7 +25,7 @@ except AttributeError:
 
 
 ALLOWED_CATEGORIES = {"Important", "College", "Work", "Promotion", "Spam"}
-SUMMARY_CATEGORIES = {"Important", "College", "Work"}
+SUMMARY_CATEGORIES = {"Important", "College", "Work", "Promotion"}
 IMPORTANT_KEYWORDS = (
     "upi",
     "payment",

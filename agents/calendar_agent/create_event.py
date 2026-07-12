@@ -17,8 +17,8 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 # calendar_agent/create_event.py -> calendar_agent -> agents -> productivity_ai
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CREDENTIALS_PATH = PROJECT_ROOT / "credentials.json"
-DEFAULT_TOKEN_PATH = PROJECT_ROOT / "calendar_token.json"
+DEFAULT_CREDENTIALS_PATH = PROJECT_ROOT / ".secrets" / "credentials.json"
+DEFAULT_TOKEN_PATH = PROJECT_ROOT / ".secrets" / "calendar_token.json"
 DEFAULT_TIME_ZONE = "Asia/Kolkata"
 
 
@@ -65,6 +65,7 @@ def authenticate_calendar(
                 "Calendar token refresh failed. Delete calendar_token.json and retry."
             ) from exc
 
+        token_path.parent.mkdir(parents=True, exist_ok=True)
         token_path.write_text(creds.to_json(), encoding="utf-8")
 
     try:

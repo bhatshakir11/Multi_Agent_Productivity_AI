@@ -1,7 +1,5 @@
 __pycache__/
 *.pyc
 *.db
-token.json
-calendar_token.json
-credentials.json
+.secrets/
 .env

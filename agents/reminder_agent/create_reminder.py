@@ -16,10 +16,14 @@ class ReminderAgentError(RuntimeError):
 
 
 def get_database_connection() -> sqlite3.Connection:
-    """Open the shared SQLite database with row dictionaries enabled."""
+    """Open the shared SQLite database with row dictionaries enabled and WAL mode active."""
     DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(DATABASE_PATH)
+    connection = sqlite3.connect(DATABASE_PATH, timeout=30.0)
     connection.row_factory = sqlite3.Row
+    try:
+        connection.execute("PRAGMA journal_mode=WAL;")
+    except sqlite3.Error:
+        pass
     return connection
 
 

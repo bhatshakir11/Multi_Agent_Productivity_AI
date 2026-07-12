@@ -10,9 +10,6 @@ from agents.calendar_agent.create_event import DEFAULT_TIME_ZONE, CalendarAgentE
 from utils.ai_client import AIClientError, ask_ai
 
 
-CALENDAR_PARSER_MODEL = "meta/llama-3.1-8b-instruct"
-
-
 def _strip_json_fences(text: str) -> str:
     """Remove common markdown fences around model JSON."""
     cleaned = text.strip()
@@ -69,11 +66,14 @@ Text:
     try:
         response = ask_ai(
             prompt,
-            model=CALENDAR_PARSER_MODEL,
             max_tokens=260,
             temperature=0.1,
+            response_format={"type": "json_object"},
         )
-        parsed = json.loads(_strip_json_fences(response))
+        try:
+            parsed = json.loads(response)
+        except json.JSONDecodeError:
+            parsed = json.loads(_strip_json_fences(response))
     except (AIClientError, json.JSONDecodeError) as exc:
         raise CalendarAgentError(f"AI event parsing failed: {exc}") from exc
 

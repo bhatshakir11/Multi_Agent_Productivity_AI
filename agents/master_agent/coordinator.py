@@ -8,6 +8,8 @@ import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from utils.logger import logger
+
 from agents.master_agent.intent_router import route_intent
 from agents.master_agent.shared_context import SharedContext
 from agents.master_agent.workflow_engine import (
@@ -106,7 +108,7 @@ def start_master_scheduler(
         replace_existing=True,
     )
     scheduler.start()
-    print(
+    logger.info(
         "Master scheduler started. "
         f"Daily summary at {daily_hour:02d}:{daily_minute:02d}; "
         f"reminder checks every {reminder_interval_minutes} minute(s)."
@@ -123,7 +125,7 @@ def run_master_scheduler_forever() -> None:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
-        print("Master scheduler stopped.")
+        logger.info("Master scheduler stopped.")
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:

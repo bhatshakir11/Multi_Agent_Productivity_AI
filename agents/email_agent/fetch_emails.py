@@ -25,8 +25,8 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # email_agent/fetch_emails.py -> email_agent -> agents -> productivity_ai
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CREDENTIALS_PATH = PROJECT_ROOT / "credentials.json"
-DEFAULT_TOKEN_PATH = PROJECT_ROOT / "token.json"
+DEFAULT_CREDENTIALS_PATH = PROJECT_ROOT / ".secrets" / "credentials.json"
+DEFAULT_TOKEN_PATH = PROJECT_ROOT / ".secrets" / "token.json"
 
 
 class GmailAgentError(RuntimeError):
@@ -145,6 +145,7 @@ def authenticate_gmail(
                 "Gmail token refresh failed. Delete token.json and authenticate again."
             ) from exc
 
+        token_path.parent.mkdir(parents=True, exist_ok=True)
         token_path.write_text(creds.to_json(), encoding="utf-8")
 
     try:
