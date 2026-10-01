@@ -47,7 +47,7 @@ def get_nvidia_model() -> str:
     return (
         os.getenv("NVIDIA_MODEL")
         or _read_config_value("NVIDIA_MODEL")
-        or "moonshotai/kimi-k2.6"
+        or "meta/llama-3.2-11b-vision-instruct"
     )
 
 
@@ -96,9 +96,11 @@ def ask_ai(
     if not prompt or not prompt.strip():
         raise AIClientError("AI prompt cannot be empty.")
 
+    target_model = model or get_nvidia_model()
+
     try:
         kwargs: dict[str, object] = {
-            "model": model or get_nvidia_model(),
+            "model": target_model,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
@@ -106,7 +108,6 @@ def ask_ai(
             "temperature": temperature,
             "top_p": top_p,
             "max_tokens": max_tokens,
-            "extra_body": {"chat_template_kwargs": {"thinking": False}},
         }
         if response_format is not None:
             kwargs["response_format"] = response_format

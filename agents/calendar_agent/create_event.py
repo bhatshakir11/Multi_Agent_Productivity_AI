@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -42,28 +43,55 @@ def authenticate_calendar(
     if token_path.exists():
         try:
             creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
-        except ValueError as exc:
-            raise CalendarAgentError(f"Invalid calendar token file: {token_path}") from exc
+        except ValueError:
+            creds = None
+            if token_path.exists():
+                token_path.unlink(missing_ok=True)
+
+    if creds and creds.expired and creds.refresh_token:
+        try:
+            creds.refresh(Request())
+        except RefreshError:
+            creds = None
+            if token_path.exists():
+                token_path.unlink(missing_ok=True)
 
     if not creds or not creds.valid:
-        try:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                if not credentials_path.exists():
-                    raise CalendarAgentError(
-                        f"Missing Google OAuth client file: {credentials_path}"
-                    )
-
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    str(credentials_path),
-                    SCOPES,
-                )
-                creds = flow.run_local_server(port=0)
-        except RefreshError as exc:
+        if not credentials_path.exists():
             raise CalendarAgentError(
-                "Calendar token refresh failed. Delete calendar_token.json and retry."
-            ) from exc
+                f"Missing Google OAuth client file: {credentials_path}. "
+                "Please place a valid credentials.json in .secrets/"
+            )
+
+        try:
+            if os.name == "nt":
+                import webbrowser
+                class WindowsDefaultBrowser(webbrowser.BaseBrowser):
+                    def open(self, url, new=0, autoraise=True):
+                        try:
+                            os.startfile(url)
+                            return True
+                        except Exception:
+                            return False
+                try:
+                    webbrowser.register("windows_default", WindowsDefaultBrowser, preferred=True)
+                except Exception:
+                    pass
+
+            flow = InstalledAppFlow.from_client_secrets_file(
+                str(credentials_path),
+                SCOPES,
+            )
+            print("\n-------------------------------------------------------------")
+            print("[AUTH REQUIRED] GOOGLE CALENDAR AUTHENTICATION")
+            print("Please approve access in your browser or click the link below.")
+            print("-------------------------------------------------------------\n")
+            creds = flow.run_local_server(
+                port=0,
+                authorization_prompt_message="Calendar Auth Link:\n{url}\n\nWaiting for authentication..."
+            )
+        except Exception as exc:
+            raise CalendarAgentError(f"Google Calendar OAuth login failed: {exc}") from exc
 
         token_path.parent.mkdir(parents=True, exist_ok=True)
         token_path.write_text(creds.to_json(), encoding="utf-8")

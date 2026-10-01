@@ -24,7 +24,9 @@ class Settings(BaseSettings):
 
     nvidia_api_key: str = Field(default="", alias="NVIDIA_API_KEY")
     nvidia_nim_api_key: str = Field(default="", alias="NVIDIA_NIM_API_KEY")
-    nvidia_model: str = Field(default="moonshotai/kimi-k2.6", alias="NVIDIA_MODEL")
+    nvidia_model: str = Field(
+        default="meta/llama-3.2-11b-vision-instruct", alias="NVIDIA_MODEL"
+    )
     nvidia_base_url: str = Field(
         default="https://integrate.api.nvidia.com/v1", alias="NVIDIA_BASE_URL"
     )

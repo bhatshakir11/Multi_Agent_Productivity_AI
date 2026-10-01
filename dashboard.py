@@ -69,10 +69,8 @@ st.markdown(
 missing_keys = []
 if not os.getenv("NVIDIA_API_KEY") and not os.getenv("NVIDIA_NIM_API_KEY"):
     missing_keys.append("NVIDIA_API_KEY")
-if not os.path.exists(".secrets/token.json"):
-    missing_keys.append("Gmail OAuth token (token.json)")
-if not os.path.exists(".secrets/calendar_token.json"):
-    missing_keys.append("Google Calendar OAuth token (calendar_token.json)")
+if not os.path.exists(".secrets/credentials.json"):
+    missing_keys.append("Google OAuth Client Secrets (.secrets/credentials.json)")
 
 # Store Demo Mode setting in session state
 if "demo_mode" not in st.session_state:
@@ -93,6 +91,8 @@ with st.sidebar:
         st.warning("⚠️ Running in Demo Mode with mock data.")
     elif missing_keys:
         st.info(f"💡 Missing credentials: {', '.join(missing_keys)}. We recommend using Demo Mode.")
+    else:
+        st.success("⚡ Live API Mode Active")
 
     st.markdown("---")
     st.markdown("### 🤖 Agent Diagnostic logs")
